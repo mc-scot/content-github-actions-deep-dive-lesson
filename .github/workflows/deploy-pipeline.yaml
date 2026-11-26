@@ -67,13 +67,13 @@ jobs:
       - name: download artifact
         uses: actions/download-artifact@v8
         with:
-          name: aipped-bundle
+          name: zipped-bundle
       - name: upload release asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}       
         with:
-          upload_url: ${{ steps.create-release.outoputs.upload_url }}
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ./${{ github.sha }}.zip
           asset_name: source_code-with_libraries.zip
           asset_content_type: application/zip
