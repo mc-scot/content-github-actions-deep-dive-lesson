@@ -48,6 +48,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: write    
     steps:
       - name: create release
         uses: actions/create-release@v1
