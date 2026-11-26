@@ -70,4 +70,12 @@ jobs:
           name: zipped-bundle
       - name: Display structure of downloaded files
         run: ls -R
-               
+      - name: upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}       
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./${{ github.sha }}.zip
+          asset_name: source_code-with_libraries.zip
+          asset_content_type: application/zip               
