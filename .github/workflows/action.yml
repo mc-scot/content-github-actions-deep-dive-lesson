@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-env:
-permissions:
-  id-token: write # allows generation of short lived id token
-  contents: read  # allows us to issue the permission
 
 jobs:
   lint:
