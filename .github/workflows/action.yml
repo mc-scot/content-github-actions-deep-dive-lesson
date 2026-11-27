@@ -49,26 +49,65 @@ jobs:
           name: zipped-bundle
           path: ${{ github.sha }}.zip
 
-  # upload:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: "Configure AWS Credentials"
-  #       uses: aws-actions/configure-aws-credentials@v6
-  #       with:
-  #         aws-region: us-east-1
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     - name: Upload to S3
-  #       run: aws s3 cp ${{ github.sha }}.zip s3://my-bucket-random/${{ github.sha }}.zip
-         
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: upload
-  #   steps:
-  #     - name: "Configure AWS Credentials"
-  #       uses: aws-actions/configure-aws-credentials@v6
-  #       with:
-  #         aws-region: us-east-1
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: zipped-bundle
+      - name: Display structure of downloaded files
+        run: ls -R          
+      # - name: "Configure AWS Credentials"
+      #   uses: aws-actions/configure-aws-credentials@v6
+      #   with:
+      #     aws-region: us-east-1
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # - name: Upload to S3
+      #   run: aws s3 cp ${{ github.sha }}.zip s3://my-bucket-random/${{ github.sha }}.zip
+
+  test:
+    runs-on: ubuntu-latest
+    needs: upload
+    steps:
+      - name: Display structure of downloaded files
+        run: ls -R    
+      # - name: "Configure AWS Credentials"
+      #   uses: aws-actions/configure-aws-credentials@v6
+      #   with:
+      #     aws-region: us-east-1
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # - name: "Create test function"
+      #   run: |
+      #     aws lambda create-function --function-name test-function \
+      #       --code S3Bucket=my-bucket-random,S3Key=${{ github.sha }}.zip \
+      #       --handler lambda_function.lambda_handler --runtime python 3.8 \
+      #       --role arn:aws:iam:${{ secrets.AWS_ACCOUNT_ID }}:role/my-lambda-role
+      # - name: Wait 30 seconds
+      #   run: sleep 30
+      # - name: Destroy test function
+      #   if: ${{ always() }}
+      #   run: aws lambda delete-function --function-name test-function
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Display structure of downloaded files
+        run: ls -R
+      # - name: "Configure AWS Credentials"
+      #   uses: aws-actions/configure-aws-credentials@v6
+      #   with:
+      #     aws-region: us-east-1
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # - name: Update function code
+      #   run: |
+      #     aws lambda update-function-code \
+      #       --function-name my-function
+      #       --s3-bucket s3://my-bucket-random \
+      #       --s3-key ${{ github.sha }}.zip \
+      #       --publish
